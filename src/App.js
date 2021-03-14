@@ -14,12 +14,10 @@ const App = () => {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
-  const [newTitle, setNewTitle] = useState('')
-  const [newAuthor, setNewAuthor] = useState('')
-  const [newUrl, setNewUrl] = useState('')
-  const [className, setClassName] = useState('')
-  const blogFormRef = useRef()
 
+  const [className, setClassName] = useState('')
+
+  const blogFormRef = useRef()
 
   useEffect(() => {
     blogService.getAll().then(blogs =>
@@ -65,23 +63,13 @@ const App = () => {
     setUser(null)
   }
 
-  const createBlog = (event) => {
+  const addBlog = (blogObject) => {
     blogFormRef.current.toggleVisibility()
-    event.preventDefault()
-    const blogObject = {
-      title: newTitle,
-      author: newAuthor,
-      url: newUrl,
-      user: user.id,
-    }
     blogService
       .create(blogObject)
       .then(returnedBlog => {
         setBlogs(blogs.concat(returnedBlog))
-        setNewTitle('')
-        setNewAuthor('')
-        setNewUrl('')
-        setNotificationMessage(`a new blog ${newTitle} by ${newAuthor} added`)
+        setNotificationMessage(`a new blog ${returnedBlog.title} by ${returnedBlog.author} added`)
         setClassName('notification')
         setTimeout(() => {
           setNotificationMessage(null)
@@ -93,39 +81,31 @@ const App = () => {
         setTimeout(() => {
           setNotificationMessage(null)
         }, 5000)
-      })}
-
-    const handleTitleForm = (event) => {
-      setNewTitle(event.target.value)
-    }
-
-    const handleAuthorForm = (event) => {
-      setNewAuthor(event.target.value)
-    }
-
-    const handleUrlForm = (event) => {
-      setNewUrl(event.target.value)
-    }
-
-    return (
-      <div>
-
-        {user === null
-          ? <div><h2>log in to application</h2> <Notification message={notificationMessage} className={className} /> < LoginForm handleLogin={handleLogin} username={username} setUsername={setUsername} password={password} setPassword={setPassword} /></div>
-          : <div>
-            <h2>blogs</h2>
-            <Notification message={notificationMessage} className={className} /> 
-            <p>{user.name} logged-in<button onClick={handleLogout}>logout</button></p>
-            <Togglable buttonLabel="new note" ref={blogFormRef}>
-            <CreateForm onSubmit={createBlog} titleValue={newTitle} authorValue={newAuthor} urlValue={newUrl} titleChange={handleTitleForm} authorChange={handleAuthorForm} urlChange={handleUrlForm} />
-            </Togglable>
-            {blogs.map(blog =>
-              <Blog key={blog.id} blog={blog} />
-            )}
-          </div>
-        }
-      </div>
-    )
+      })
   }
+  const blogForm = () => (
+    <Togglable buttonLabel="new blog" ref={blogFormRef}>
+      <CreateForm createBlog={addBlog} user={user} />
+    </Togglable>
+  )
 
-  export default App
+  return (
+    <div>
+
+      {user === null
+        ? <div><h2>log in to application</h2> <Notification message={notificationMessage} className={className} /> < LoginForm handleLogin={handleLogin} username={username} setUsername={setUsername} password={password} setPassword={setPassword} /></div>
+        : <div>
+          <h2>blogs</h2>
+          <Notification message={notificationMessage} className={className} />
+          <p>{user.name} logged-in<button onClick={handleLogout}>logout</button></p>
+          {blogForm()}
+          {blogs.map(blog =>
+            <Blog key={blog.id} blog={blog} />
+          )}
+        </div>
+      }
+    </div>
+  )
+}
+
+export default App
