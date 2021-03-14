@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import Blog from './components/Blog'
 import LoginForm from './components/LoginForm'
 import CreateForm from './components/CreateForm'
 import Notification from './components/Notification'
+import Togglable from './components/Togglable'
 import blogService from './services/blogs'
 import loginService from './services/login'
 
@@ -17,6 +18,8 @@ const App = () => {
   const [newAuthor, setNewAuthor] = useState('')
   const [newUrl, setNewUrl] = useState('')
   const [className, setClassName] = useState('')
+  const blogFormRef = useRef()
+
 
   useEffect(() => {
     blogService.getAll().then(blogs =>
@@ -63,6 +66,7 @@ const App = () => {
   }
 
   const createBlog = (event) => {
+    blogFormRef.current.toggleVisibility()
     event.preventDefault()
     const blogObject = {
       title: newTitle,
@@ -112,7 +116,9 @@ const App = () => {
             <h2>blogs</h2>
             <Notification message={notificationMessage} className={className} /> 
             <p>{user.name} logged-in<button onClick={handleLogout}>logout</button></p>
+            <Togglable buttonLabel="new note" ref={blogFormRef}>
             <CreateForm onSubmit={createBlog} titleValue={newTitle} authorValue={newAuthor} urlValue={newUrl} titleChange={handleTitleForm} authorChange={handleAuthorForm} urlChange={handleUrlForm} />
+            </Togglable>
             {blogs.map(blog =>
               <Blog key={blog.id} blog={blog} />
             )}
