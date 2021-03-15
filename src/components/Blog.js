@@ -22,13 +22,13 @@ const Blog = ({ blog, updateBlog, removeBlog, user }) => {
 
 
   return (
-    <div style={blogStyle}>
+    <div style={blogStyle} className='Blog'>
       < div >
         {blog.title} {blog.author}
         <span>
           <button onClick={toggleButton}>{buttonText}</button>
         </span>
-        <div style={showWhenVisible}>
+        <div style={showWhenVisible} className='detail'>
 
           {blog.url}        <br />
           likes {blog.likes} <button onClick={updateBlog}>like</button> <br />
