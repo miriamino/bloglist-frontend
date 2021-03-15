@@ -3,86 +3,59 @@ import '@testing-library/jest-dom/extend-expect'
 import { render, fireEvent } from '@testing-library/react'
 import Blog from './Blog'
 
+describe('<Blog />', () => {
+  let component
+  let updateBlog
 
-test('renders title and author of blog but not likes, url and user', () => {
-  const blog = {
-    title: 'Component testing is done with react-testing-library',
-    author: 'Me Myself',
-    url: 'someurl',
-    likes: '4',
-    user: 'Eoo'
-  }
-  const user = {
-    username: 'fklfe',
-    name: 'You ooo',
-  }
+  beforeEach(() => {
+    const blog = {
+      title: 'Component testing is done with react-testing-library',
+      author: 'Not ME',
+      url: 'https://whattheurl.gay',
+      likes: 4,
+      user: 'Mee Me'
+    }
 
+    const user = {
+      id: 'Mee Me'
+    }
 
-  const component = render(
-    <Blog blog={blog} user={user} />
-  )
+    updateBlog = jest.fn()
+    component = render(
+      <Blog blog={blog} user={user} updateBlog={updateBlog} />
+    )
+  })
 
+  test('renders content', () => {
+    expect(component.container).toHaveTextContent(
+      'Component testing is done with react-testing-library'
+    )
+  })
 
-  expect(component.container).toHaveTextContent(
-    'Component testing is done with react-testing-library Me Myself'
-  )
-  expect(component.container.querySelector('.detail')).toHaveStyle('display: none')
+  test('the component displaying a blog renders the blogs title and author, but does not render its url or number of likes by default', () => {
+    const blogComponent = component.container.querySelector('.Blog')
 
-})
+    expect(blogComponent).toHaveTextContent('Component testing is done with react-testing-library Not ME')
 
-test('blogs url and number of likes are shown when the button controlling the shown details has been clicked.', () => {
-  const blog = {
-    title: 'Component testing is done with react-testing-library',
-    author: 'Me Myself',
-    url: 'someurl',
-    likes: '4',
-    user: 'Eoo'
-  }
-  const user = {
-    username: 'fklfe',
-    name: 'You ooo',
-  }
+    const detailView = component.container.querySelector('.detail')
+    expect(detailView).toHaveStyle('display: none')
+  })
 
+  test('the blogs url and number of likes are shown when the button controlling the shown details has been clicked', () => {
+    const button = component.getByText('view')
+    fireEvent.click(button)
 
-  const component = render(
-    <Blog blog={blog} user={user} />
-  )
-  const button = component.getByText('view')
-  fireEvent.click(button)
+    const detailView = component.container.querySelector('.detail')
+    expect(detailView).not.toHaveStyle('display: none')
+    expect(detailView).toHaveTextContent(
+      'likes'
+    )
+  })
 
-  expect(component.container).toHaveTextContent(
-    'someurl'
-  )
-  expect(component.container).toHaveTextContent(
-    'likes 4'
-  )
-
-})
-
-test('if the like button is clicked twice, the event handler the component received as props is called twice', () => {
-  const blog = {
-    title: 'Component testing is done with react-testing-library',
-    author: 'Me Myself',
-    url: 'someurl',
-    likes: '4',
-    user: 'Eoo'
-  }
-  const user = {
-    username: 'fklfe',
-    name: 'You ooo',
-  }
-
-  const mockHandler = jest.fn()
-
-  const component = render(
-    <Blog blog={blog} user={user} updateBlog={mockHandler} />
-  )
-
-  const button = component.getByText('like')
-  fireEvent.click(button)
-  fireEvent.click(button)
-
-  expect(mockHandler.mock.calls).toHaveLength(2)
-
-
+  test('if the like button is clicked twice, the event handler the component received as props is called twice', () => {
+    const updateBlogButton = component.getByText('like')
+    fireEvent.click(updateBlogButton)
+    fireEvent.click(updateBlogButton)
+    expect(updateBlog.mock.calls).toHaveLength(2)
+  })
 })
