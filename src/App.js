@@ -21,7 +21,7 @@ const App = () => {
 
   useEffect(() => {
     blogService.getAll().then(blogs =>
-      setBlogs(blogs)
+      setBlogs(blogs.sort((a, b) => b.likes - a.likes))
     )
   }, [])
 
@@ -83,11 +83,36 @@ const App = () => {
         }, 5000)
       })
   }
+
+
   const blogForm = () => (
     <Togglable buttonLabel="new blog" ref={blogFormRef}>
       <CreateForm createBlog={addBlog} user={user} />
     </Togglable>
   )
+
+  const likeBlog = id => {
+    const blog = blogs.find(n => n.id === id)
+    const updatedBlog = {
+      user: blog.user.id,
+      likes: blog.likes + 1,
+      author: blog.author,
+      title: blog.title,
+      url: blog.url,
+    }
+    blogService
+      .update(id, updatedBlog)
+      .then(returnedBlog => {
+        setBlogs(blogs.map(blog => blog.id !== id ? blog : { ...blog, likes: returnedBlog.likes }).sort((a, b) => b.likes - a.likes))
+      })
+      .catch(error => {
+        setNotificationMessage("already removed from the server")
+        setClassName('error')
+        setTimeout(() => {
+          setNotificationMessage(null)
+        }, 5000)
+      })
+  }
 
   return (
     <div>
@@ -100,7 +125,7 @@ const App = () => {
           <p>{user.name} logged-in<button onClick={handleLogout}>logout</button></p>
           {blogForm()}
           {blogs.map(blog =>
-            <Blog key={blog.id} blog={blog} />
+            <Blog key={blog.id} blog={blog} updateBlog={() => likeBlog(blog.id)} />
           )}
         </div>
       }
