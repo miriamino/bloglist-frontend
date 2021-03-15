@@ -106,7 +106,7 @@ const App = () => {
         setBlogs(blogs.map(blog => blog.id !== id ? blog : { ...blog, likes: returnedBlog.likes }).sort((a, b) => b.likes - a.likes))
       })
       .catch(error => {
-        setNotificationMessage("already removed from the server")
+        setNotificationMessage(error.response.data.error)
         setClassName('error')
         setTimeout(() => {
           setNotificationMessage(null)
@@ -118,9 +118,9 @@ const App = () => {
     const title = blog.title
     const author = blog.author
     blogService
-    .remove(id)
+      .remove(id)
     window.confirm(`Remove blog ${title} by ${author}`)
-      setBlogs(blogs.filter(b => b.title !== title))
+    setBlogs(blogs.filter(b => b.title !== title))
   }
 
   return (
