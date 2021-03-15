@@ -113,6 +113,15 @@ const App = () => {
         }, 5000)
       })
   }
+  const removeBlog = id => {
+    const blog = blogs.find(n => n.id === id)
+    const title = blog.title
+    const author = blog.author
+    blogService
+    .remove(id)
+    window.confirm(`Remove blog ${title} by ${author}`)
+      setBlogs(blogs.filter(b => b.title !== title))
+  }
 
   return (
     <div>
@@ -125,7 +134,7 @@ const App = () => {
           <p>{user.name} logged-in<button onClick={handleLogout}>logout</button></p>
           {blogForm()}
           {blogs.map(blog =>
-            <Blog key={blog.id} blog={blog} updateBlog={() => likeBlog(blog.id)} />
+            <Blog key={blog.id} blog={blog} updateBlog={() => likeBlog(blog.id)} removeBlog={() => removeBlog(blog.id)} user={user} />
           )}
         </div>
       }
