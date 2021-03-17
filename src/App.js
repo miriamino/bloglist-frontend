@@ -133,9 +133,11 @@ const App = () => {
           <Notification message={notificationMessage} className={className} />
           <p>{user.name} logged-in<button onClick={handleLogout}>logout</button></p>
           {blogForm()}
-          {blogs.map(blog =>
-            <Blog key={blog.id} blog={blog} updateBlog={() => likeBlog(blog.id)} removeBlog={() => removeBlog(blog.id)} user={user} />
-          )}
+          <div className='blogList'>
+            {blogs.map((blog, index) =>
+              <Blog index={index} key={blog.id} blog={blog} updateBlog={() => likeBlog(blog.id)} removeBlog={() => removeBlog(blog.id)} user={user} />
+            )}
+          </div>
         </div>
       }
     </div>
